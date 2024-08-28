@@ -10,7 +10,7 @@ mongoose.connect('mongodb+srv://admin:admin@clustermvg.92nqh.mongodb.net/test?re
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 app.use((req, res, next) => {
-  console.log('Requête reçue !', req.url);
+  console.log('Requête reçue : ', req.url);
   next();
 });
 
@@ -19,9 +19,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
-    res.set('Content-Type', 'text/html');
-    res.send(Buffer.from('<h1>Test</h1>'));
-});
+
+
+app.get('/api/book', bookCtrl.getAllBook)
 
 module.exports = app;
