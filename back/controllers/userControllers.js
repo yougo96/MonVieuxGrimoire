@@ -13,6 +13,8 @@ exports.getAllUser = (req, res) => {
 
 exports.postLogin = (req, res) => {
 
+    console.log(req.body);
+
     User.findOne({ email: req.body.email })
     .then(user => {
 

@@ -15,7 +15,11 @@ mongoose.connect('mongodb+srv://admin:admin@clustermvg.92nqh.mongodb.net/test?re
 .then(() => console.log('Connexion à MongoDB réussie !'))
 .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-app.use(bodyParser.json())
+const path = require('path');
+app.use('/static', express.static(path.join(__dirname, 'static')));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

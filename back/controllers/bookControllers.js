@@ -1,33 +1,6 @@
 
-const book = require('../models/book.js');
+const { json } = require('express');
 const Book = require('../models/book.js');
-
-const multer  = require('multer')
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'static/uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.fieldname + '-' + Date.now());
-  }
-});
-const upload = multer({
-  storage,
-  limits: {
-    fileSize: 32000000 // 32MB
-  },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
-
-    if (!allowedTypes.includes(file.mimetype)) {
-      const error = new Error('Invalid file type');
-      error.code = 'INVALID_FILE_TYPE';
-      return cb(error, false);
-    }
-
-    cb(null, true);
-  }
-});
 
 exports.getAllBook = (req, res, next) => {
     Book.find()
@@ -43,30 +16,32 @@ exports.getOneBook = (req, res, next) => {
 
 exports.postOneBook = (req, res, next) => {
 
-    const book = new Book({
-        userId: "req.body.userId",
-        title: req.body.title,
-        author: req.body.author,
-        imageUrl: "req.body.file",
-        year: req.body.year,
-        genre: req.body.genre,
-        ratings: [],
-        averageRating: 0
+    const bookObject = JSON.parse(req.body.book);
+
+    delete bookObject._id;
+    delete bookObject._userId;
+
+    const bookNew = new Book({
+        ...bookObject,
+        userId: req.auth.userId,
+        imageUrl: `${req.protocol}://${req.get('host')}/static/images/${req.file.filename}`
     })
 
-    req.body.save()
+    console.log(bookNew)
+
+    bookNew.save()
     .then(book => res.status(200).json(book))
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.putOneBook = (req, res, next) => {
-    Book.create()
-    .then(book => res.status(200).json(book))
-    .catch(error => res.status(400).json({ error }));
-}
+// exports.putOneBook = (req, res, next) => {
+//     book.save()
+//     .then(book => res.status(200).json(book))
+//     .catch(error => res.status(400).json({ error }));
+// }
 
-exports.deleteOneBook = (req, res, next) => {
-    Book.create()
-    .then(book => res.status(200).json(book))
-    .catch(error => res.status(400).json({ error }));
-}
+// exports.deleteOneBook = (req, res, next) => {
+//     book.removeOne(req.params.id)
+//     .then(book => res.status(200).json(book))
+//     .catch(error => res.status(400).json({ error }));
+// }
