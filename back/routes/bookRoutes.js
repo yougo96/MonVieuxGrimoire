@@ -3,6 +3,8 @@ const router = express.Router();
 
 const bookCtrl = require('../controllers/bookControllers');
 
+const auth = require('../middlewares/auth');
+
 router.get('/', bookCtrl.getAllBook);
 router.get('/:id', bookCtrl.getOneBook);
 // router.get('/bestrating', bookCtrl.getOneBookBestRating);
