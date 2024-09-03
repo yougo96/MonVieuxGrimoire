@@ -1,6 +1,8 @@
 
 const { json } = require('express');
 const Book = require('../models/book.js');
+const sharp = require('sharp');
+const fs = require('fs');
 
 exports.getAllBook = (req, res, next) => {
     Book.find()
@@ -14,18 +16,23 @@ exports.getOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.postOneBook = (req, res, next) => {
+exports.postOneBook = async (req, res, next) => {
 
     const bookObject = JSON.parse(req.body.book);
 
     delete bookObject._id;
     delete bookObject._userId;
 
+    console.log(req.file)
+
     const bookNew = new Book({
         ...bookObject,
         userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/static/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/static/images/sharped-${req.file.filename}.png`
     })
+
+    await sharp(req.file.path).resize({ height: 1024 }).png({ quality: 60 }).toFile(`static/images/sharped-${req.file.filename}.png`);
+    fs.unlinkSync(req.file.path);
 
     console.log(bookNew)
 
@@ -40,7 +47,7 @@ exports.putOneBook = (req, res, next) => {
     {
         ...JSON.parse(req.body.book),
         _id: req.params.id,
-        imageUrl: `${req.protocol}://${req.get('host')}/static/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/static/images/${req.file.filename}.png`
     }
     : 
     {
