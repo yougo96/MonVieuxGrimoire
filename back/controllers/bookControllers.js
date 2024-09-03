@@ -34,14 +34,31 @@ exports.postOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-// exports.putOneBook = (req, res, next) => {
-//     book.save()
-//     .then(book => res.status(200).json(book))
-//     .catch(error => res.status(400).json({ error }));
-// }
+exports.putOneBook = (req, res, next) => {
+    
+    const bookNew = req.file ? 
+    {
+        ...JSON.parse(req.body.book),
+        _id: req.params.id,
+        imageUrl: `${req.protocol}://${req.get('host')}/static/images/${req.file.filename}`
+    }
+    : 
+    {
+        ...req.body,
+        _id: req.params.id,
+    }
+    
+    delete bookNew._userId;
 
-// exports.deleteOneBook = (req, res, next) => {
-//     book.removeOne(req.params.id)
-//     .then(book => res.status(200).json(book))
-//     .catch(error => res.status(400).json({ error }));
-// }
+    console.log(bookNew)
+    
+    Book.findOneAndUpdate({ _id: req.params.id}, bookNew)
+    .then(book => res.status(200).json(book))
+    .catch(error => res.status(400).json({ error }));
+}
+
+exports.deleteOneBook = (req, res, next) => {
+    Book.findOneAndDelete({ _id: req.params.id})
+    .then(book => res.status(200).json(book))
+    .catch(error => res.status(400).json({ error }));
+}
