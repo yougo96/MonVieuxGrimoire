@@ -15,6 +15,10 @@ exports.postLogin = (req, res) => {
 
     console.log(req.body);
 
+    if ( /^[^@]+@[^@]+\.[^@]+$/.test(req.body.email) === false ) {
+        return res.status(401).json({ error: 'entrer un email' });
+    }
+
     User.findOne({ email: req.body.email })
     .then(user => {
 
