@@ -11,7 +11,7 @@ router.get('/:id', bookCtrl.getOneBook);
 router.get('/bestrating', bookCtrl.getBestBook);
 
 router.post('/', auth, multer, bookCtrl.postOneBook);
-// router.post('/:id/rating', bookCtrl.postOneBookRating);
+router.post('/:id/rating', auth, bookCtrl.postOneBookRating);
 
 router.put('/:id', auth, multer, bookCtrl.putOneBook)
 
