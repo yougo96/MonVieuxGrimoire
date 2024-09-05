@@ -2,7 +2,6 @@
 const { json } = require('express');
 const Book = require('../models/book.js');
 const sharp = require('sharp');
-const fs = require('fs');
 
 exports.getAllBook = (req, res, next) => {
     Book.find()
@@ -45,11 +44,36 @@ exports.postOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
+exports.postOneAverageRating = async (req, res, next) => {
+    
+    let averageRatingNew = 55
+
+    await Book.findOne({ _id: req.params.id })
+    .then(book => {
+        const allRating = book.ratings.map(rating => rating.grade)
+        averageRatingNew = allRating.reduce((a, b) => a + b) / allRating.length
+        console.log("all rating : ", allRating, " average rating : ", averageRatingNew)
+    })
+    .catch(error => res.status(400).json({ error }));
+
+    console.log(averageRatingNew)
+
+    Book.findOneAndUpdate({ _id: req.params.id}, {averageRating: averageRatingNew})
+    .then(book => res.status(200).json(book))
+    .catch(error => res.status(400).json({ error }));
+}
+
 exports.postOneBookRating = (req, res, next) => {
 
-    const bookRating = { $push : {ratings: req.body}}
+    const bookNewRating = {
+        $push : {ratings: {
+                userId: req.auth.userId,
+                grade: req.body.rating
+        }}
+    }
+    delete bookNewRating._id;
 
-    Book.findOneAndUpdate({ _id: req.params.id}, bookRating)
+    Book.findOneAndUpdate({ _id: req.params.id}, bookNewRating)
     .then(book => res.status(200).json(book))
     .catch(error => res.status(400).json({ error }));
 }
