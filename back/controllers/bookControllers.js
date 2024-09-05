@@ -16,14 +16,11 @@ exports.getOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.getBestBook = (req, res, next) => {
-    // res.status(200).json("toto")
-    
-    Book.find()
+exports.getBestBook = (req, res, next) => {  
+    Book.find().sort('-averageRating').limit(3)
     .then(book => res.status(200).json(book))
     .catch(error => res.status(400).json({ error }));
 }
-
 
 exports.postOneBook = (req, res, next) => {
 
