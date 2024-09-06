@@ -2,12 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
 
+require('dotenv').config()
+const {DB_URL} = process.env
+
 const app = express();
 
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes.js');
 
-mongoose.connect('mongodb+srv://admin:admin@clustermvg.92nqh.mongodb.net/test?retryWrites=true&w=majority',
+mongoose.connect(DB_URL,
   { useNewUrlParser: true,
     useUnifiedTopology: true 
   }
