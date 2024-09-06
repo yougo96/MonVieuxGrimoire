@@ -1,14 +1,19 @@
+// Node/Express
 const express = require('express');
 const bodyParser = require('body-parser')
+// DB
 const mongoose = require('mongoose');
-
+// Security
 require('dotenv').config()
 const {DB_URL} = process.env
-
+const helmet = require("helmet");
+// App
 const app = express();
 
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes.js');
+
+// -------------------------------------------------
 
 mongoose.connect(DB_URL,
   { useNewUrlParser: true,
@@ -17,6 +22,10 @@ mongoose.connect(DB_URL,
 )
 .then(() => console.log('Connexion à MongoDB réussie !'))
 .catch(() => console.log('Connexion à MongoDB échouée !'));
+
+// -------------------------------------------------
+
+app.use(helmet());
 
 const path = require('path');
 app.use('/static', express.static(path.join(__dirname, 'static')));
