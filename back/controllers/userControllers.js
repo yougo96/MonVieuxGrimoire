@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 require('dotenv').config()
-const {JWT_KEY} = process.env
+const {JWT_KEY, BACK_URL} = process.env
 
 exports.getAllUser = (req, res) => {
 
@@ -16,7 +16,7 @@ exports.getAllUser = (req, res) => {
 
 exports.postLogin = (req, res) => {
 
-    console.log(req.body);
+    console.log("login : ", req.body);
 
     if ( /^[^@]+@[^@]+\.[^@]+$/.test(req.body.email) === false ) {
         return res.status(401).json({ error: 'entrer un email' });
@@ -49,7 +49,11 @@ exports.postLogin = (req, res) => {
 };
 
 exports.postSignup = (req, res) => {
-    console.log('SignUp');
+    console.log('SignUp', req.body);
+
+    if ( /^[^@]+@[^@]+\.[^@]+$/.test(req.body.email) === false ) {
+        return res.status(401).json({ error: 'entrer un email' });
+    }
 
     bcrypt.hash(req.body.password, 10)
     .then(hash => {
