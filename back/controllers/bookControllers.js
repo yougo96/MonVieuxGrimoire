@@ -3,6 +3,7 @@ const { json } = require('express');
 const Book = require('../models/book.js');
 const sharp = require('sharp');
 const fs = require('fs');
+const { resolve } = require('path');
 
 exports.getAllBook = (req, res, next) => {
     Book.find()
@@ -96,7 +97,7 @@ exports.putOneBook = (req, res, next) => {
     if (req.file) {
 
         Book.findOne({ _id: req.params.id })
-        .then(book => fs.unlinkSync(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, "")))
+        .then(book => deleteFile(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, "")))
         .catch(error => res.status(400).json({ error }));
 
         const imageName = `sharped-${Date.now()}-${req.file.originalname}.webp`
@@ -127,9 +128,20 @@ exports.deleteOneBook = (req, res, next) => {
     Book.findOneAndDelete({ _id: req.params.id})
     .then(book => 
         {
-            fs.unlinkSync(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, ""))
+            deleteFile(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, ""))
             res.status(200).json(book)
         }
     )
     .catch(error => res.status(400).json({ error }));
+}
+
+function deleteFile(path) {
+    try {
+        fs.unlinkSync(path, function (err) {
+            if (err) throw err;
+            resolve("File deleted!");
+        });
+    } catch (error) {
+        console.log(error);
+    }
 }
