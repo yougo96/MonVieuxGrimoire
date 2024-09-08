@@ -10,7 +10,7 @@ router.get('/', bookCtrl.getAllBook);
 router.get('/bestrating', bookCtrl.getBestBook);
 router.get('/:id', bookCtrl.getOneBook);
 
-router.get('/:id/averagerating', bookCtrl.postOneAverageRating);
+// router.get('/:id/averagerating', bookCtrl.postOneAverageRating);
 
 router.post('/', auth, multer, bookCtrl.postOneBook);
 router.post('/:id/rating', auth, bookCtrl.postOneBookRating);

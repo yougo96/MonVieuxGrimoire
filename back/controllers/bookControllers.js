@@ -49,21 +49,21 @@ exports.postOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.postOneAverageRating = async (req, res, next) => {
+exports.postOneAverageRating = async (id) => {
     
     let averageRatingNew = 5
 
-    await Book.findOne({ _id: req.params.id })
+    await Book.findOne({ _id: id })
     .then(book => {
         const allRating = book.ratings.map(rating => rating.grade)
         averageRatingNew = allRating.reduce((a, b) => a + b) / allRating.length
         averageRatingNew = Math.round(averageRatingNew*10)/10
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => console.log(error));
 
-    Book.findOneAndUpdate({ _id: req.params.id}, {averageRating: averageRatingNew})
-    .then(book => res.status(200).json(book))
-    .catch(error => res.status(400).json({ error }));
+    Book.findOneAndUpdate({ _id: id}, {averageRating: averageRatingNew})
+    .then(book => console.log(book))
+    .catch(error => console.log(error));
 }
 
 exports.postOneBookRating = (req, res, next) => {
@@ -79,7 +79,8 @@ exports.postOneBookRating = (req, res, next) => {
     Book.findOneAndUpdate({ _id: req.params.id}, bookNewRating)
     .then(book => 
         {
-            fetch(`${req.protocol}://${req.get('host')}/api/books/${req.params.id}/averagerating`)
+            this.postOneAverageRating(req.params.id)
+            // fetch(`${req.protocol}://${req.get('host')}/api/books/${req.params.id}/averagerating`)
             res.status(200).json(book)
         }
     )
@@ -88,11 +89,16 @@ exports.postOneBookRating = (req, res, next) => {
 
 exports.putOneBook = (req, res, next) => {
     
-    console.log(req.body)
+    console.log(req.file)
 
     let bookNew = {}
 
     if (req.file) {
+
+        Book.findOne({ _id: req.params.id })
+        .then(book => fs.unlinkSync(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, "")))
+        .catch(error => res.status(400).json({ error }));
+
         const imageName = `sharped-${Date.now()}-${req.file.originalname}.webp`
         bookNew =     {
             ...JSON.parse(req.body.book),
@@ -100,7 +106,7 @@ exports.putOneBook = (req, res, next) => {
             imageUrl: `${req.protocol}://${req.get('host')}/static/images/${imageName}`
         }
         sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
-        // fs.unlinkSync(`static/images/${req.body.imageUrl}`);
+        
     } else {
         bookNew = {
             ...req.body,
@@ -121,7 +127,7 @@ exports.deleteOneBook = (req, res, next) => {
     Book.findOneAndDelete({ _id: req.params.id})
     .then(book => 
         {
-            // fs.unlinkSync(`static/images/${book.imageUrl}`)
+            fs.unlinkSync(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, ""))
             res.status(200).json(book)
         }
     )
