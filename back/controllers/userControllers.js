@@ -65,7 +65,7 @@ exports.postSignup = (req, res) => {
 
         user.save()
         .then(() => res.status(201).json({ message: 'Utilisateur enregistré' }))
-        .catch(error => res.status(error.status).json({ error }));
+        .catch(error => res.status(500).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
 

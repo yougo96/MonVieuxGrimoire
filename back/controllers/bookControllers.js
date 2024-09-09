@@ -62,12 +62,12 @@ exports.postOneAverageRating = async (id) => {
     })
     .catch(error => console.log(error));
 
-    Book.findOneAndUpdate({ _id: id}, {averageRating: averageRatingNew})
-    .then(book => console.log(book))
+    await Book.findOneAndUpdate({ _id: id}, {averageRating: averageRatingNew}, {new: true})
+    .then(book => console.log("average rating : ",book))
     .catch(error => console.log(error));
 }
 
-exports.postOneBookRating = (req, res, next) => {
+exports.postOneBookRating = async (req, res, next) => {
 
     const bookNewRating = {
         $push : {ratings: {
@@ -77,15 +77,16 @@ exports.postOneBookRating = (req, res, next) => {
     }
     delete bookNewRating._id;
 
-    Book.findOneAndUpdate({ _id: req.params.id}, bookNewRating)
+    await Book.findOneAndUpdate({ _id: req.params.id}, bookNewRating, {new: true})
     .then(book => 
         {
             this.postOneAverageRating(req.params.id)
+            console.log("rating added")
             // fetch(`${req.protocol}://${req.get('host')}/api/books/${req.params.id}/averagerating`)
             res.status(200).json(book)
         }
     )
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(400).json({ error }))
 }
 
 exports.putOneBook = (req, res, next) => {
@@ -119,7 +120,7 @@ exports.putOneBook = (req, res, next) => {
 
     console.log(bookNew)
     
-    Book.findOneAndUpdate({ _id: req.params.id}, bookNew)
+    Book.findOneAndUpdate({ _id: req.params.id}, bookNew, {new: true})
     .then(book => res.status(200).json(book))
     .catch(error => res.status(400).json({ error }));
 }
