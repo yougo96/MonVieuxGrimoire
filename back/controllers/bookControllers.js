@@ -44,7 +44,9 @@ exports.postOneBook = (req, res, next) => {
     })
 
     try {
-        fs.mkdirSync("static/images")
+        if (!fs.existsSync("static/images")){
+            fs.mkdirSync("static/images");
+        }
         sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
     } catch (error) {
         res.status(400).json({ message: 'Impossible de charger l\'image' })
