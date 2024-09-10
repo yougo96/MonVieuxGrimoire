@@ -52,7 +52,7 @@ exports.postSignup = (req, res) => {
     console.log('SignUp', req.body);
 
     if ( /^[^@]+@[^@]+\.[^@]+$/.test(req.body.email) === false ) {
-        return res.status(401).json({ error: 'entrer un email' });
+        return res.status(401).json({ message: 'entrer un email valide' });
     }
 
     bcrypt.hash(req.body.password, 10)

@@ -43,7 +43,12 @@ exports.postOneBook = (req, res, next) => {
         imageUrl: `${req.protocol}://${req.get('host')}/static/images/${imageName}`
     })
 
-    sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
+    try {
+        fs.mkdirSync("static/images")
+        sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
+    } catch (error) {
+        res.status(400).json({ message: 'Impossible de charger l\'image' })
+    }
 
     bookNew.save()
     .then(book => res.status(200).json(book))
@@ -81,6 +86,7 @@ exports.postOneBookRating = async (req, res, next) => {
     .then(book => 
         {
             this.postOneAverageRating(req.params.id)
+            
             console.log("rating added")
             // fetch(`${req.protocol}://${req.get('host')}/api/books/${req.params.id}/averagerating`)
             res.status(200).json(book)
