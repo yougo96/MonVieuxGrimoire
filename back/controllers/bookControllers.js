@@ -57,24 +57,13 @@ exports.postOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.postOneAverageRating = async (id) => {
-    
-    let averageRatingNew = 5
-
-    await Book.findOne({ _id: id })
-    .then(book => {
-        const allRating = book.ratings.map(rating => rating.grade)
-        averageRatingNew = allRating.reduce((a, b) => a + b) / allRating.length
-        averageRatingNew = Math.round(averageRatingNew*10)/10
-    })
-    .catch(error => console.log(error));
-
-    await Book.findOneAndUpdate({ _id: id}, {averageRating: averageRatingNew}, {new: true})
-    .then(book => console.log("average rating : ",book))
+exports.postOneAverageRating = (id, ar) => {
+    Book.findOneAndUpdate({ _id: id}, {averageRating: ar}, {new: true})
+    .then(book => console.log("average rating : ", book.averageRating))
     .catch(error => console.log(error));
 }
 
-exports.postOneBookRating = async (req, res, next) => {
+exports.postOneBookRating = (req, res, next) => {
 
     const bookNewRating = {
         $push : {ratings: {
@@ -84,13 +73,18 @@ exports.postOneBookRating = async (req, res, next) => {
     }
     delete bookNewRating._id;
 
-    await Book.findOneAndUpdate({ _id: req.params.id}, bookNewRating, {new: true})
+    Book.findOneAndUpdate({ _id: req.params.id}, bookNewRating, {new: true})
     .then(book => 
         {
-            this.postOneAverageRating(req.params.id)
+            const allRating = book.ratings.map(rating => rating.grade)
+            let averageRatingNew = allRating.reduce((a, b) => a + b) / allRating.length
+            averageRatingNew = Math.round(averageRatingNew*10)/10
+            book.averageRating = averageRatingNew
             
-            console.log("rating added")
+            this.postOneAverageRating(req.params.id, averageRatingNew);
+            
             // fetch(`${req.protocol}://${req.get('host')}/api/books/${req.params.id}/averagerating`)
+            console.log("rating added")
             res.status(200).json(book)
         }
     )
