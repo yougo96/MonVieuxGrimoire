@@ -23,7 +23,7 @@ exports.getBestBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.postOneBook = (req, res, next) => {
+exports.postOneBook =  async (req, res, next) => {
 
     const bookObject = JSON.parse(req.body.book);
 
@@ -34,23 +34,20 @@ exports.postOneBook = (req, res, next) => {
         return
     }
 
-    const imageName = `sharped-${Date.now()}-${req.file.originalname}.webp`
+    // const imageName = `sharped-${Date.now()}-${req.file.originalname}.webp`
+    // if (!fs.existsSync("static/images")){
+    //     fs.mkdirSync("static/images");
+    // }
+    // sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
+        
+    const Base64Img = await bufferToBase64(req.file.buffer)
 
     const bookNew = new Book({
         ...bookObject,
         userId: req.auth.userId,
-        // ratings: [].req.body,
-        imageUrl: `${req.protocol}://${req.get('host')}/static/images/${imageName}`
+        // imageUrl: `${req.protocol}://${req.get('host')}/static/images/${imageName}`
+        imageUrl: Base64Img
     })
-
-    try {
-        if (!fs.existsSync("static/images")){
-            fs.mkdirSync("static/images");
-        }
-        sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
-    } catch (error) {
-        res.status(400).json({ message: 'Impossible de charger l\'image' })
-    }
 
     bookNew.save()
     .then(book => res.status(200).json(book))
@@ -91,7 +88,7 @@ exports.postOneBookRating = (req, res, next) => {
     .catch(error => res.status(400).json({ error }))
 }
 
-exports.putOneBook = (req, res, next) => {
+exports.putOneBook = async (req, res, next) => {
     
     console.log(req.file)
 
@@ -99,17 +96,21 @@ exports.putOneBook = (req, res, next) => {
 
     if (req.file) {
 
-        Book.findOne({ _id: req.params.id })
-        .then(book => deleteFile(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, "")))
-        .catch(error => res.status(400).json({ error }));
+        // Book.findOne({ _id: req.params.id })
+        // .then(book => deleteFile(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, "")))
+        // .catch(error => res.status(400).json({ error }));
+        // sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
+
+        const Base64Img = await bufferToBase64(req.file.buffer)
 
         const imageName = `sharped-${Date.now()}-${req.file.originalname}.webp`
         bookNew =     {
             ...JSON.parse(req.body.book),
             _id: req.params.id,
-            imageUrl: `${req.protocol}://${req.get('host')}/static/images/${imageName}`
+            // imageUrl: `${req.protocol}://${req.get('host')}/static/images/${imageName}`
+            imageUrl: Base64Img
         }
-        sharp(req.file.buffer).resize({ height: 1024 }).webp({ quality: 60 }).toFile(`static/images/${imageName}`);
+        
         
     } else {
         bookNew = {
@@ -131,20 +132,26 @@ exports.deleteOneBook = (req, res, next) => {
     Book.findOneAndDelete({ _id: req.params.id})
     .then(book => 
         {
-            deleteFile(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, ""))
+            // deleteFile(book.imageUrl.replace(`${req.protocol}://${req.get('host')}/`, ""))
             res.status(200).json(book)
         }
     )
     .catch(error => res.status(400).json({ error }));
 }
 
-function deleteFile(path) {
-    try {
-        fs.unlinkSync(path, function (err) {
-            if (err) throw err;
-            resolve("File deleted!");
-        });
-    } catch (error) {
-        console.log(error);
-    }
+async function bufferToBase64(originalBuffer) { 
+    const sharpBuffer = await sharp(originalBuffer).resize({ height: 1024 }).webp({ quality: 60 }).toBuffer();
+    const Base64Img = `data:image/png;base64,${sharpBuffer.toString('base64')}`
+    return Base64Img
 }
+
+// function deleteFile(path) {
+//     try {
+//         fs.unlinkSync(path, function (err) {
+//             if (err) throw err;
+//             resolve("File deleted!");
+//         });
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
