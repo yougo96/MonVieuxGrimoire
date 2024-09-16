@@ -139,6 +139,10 @@ exports.deleteOneBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
+
+
+// Utils -----------------------------
+
 async function bufferToBase64(originalBuffer) { 
     const sharpBuffer = await sharp(originalBuffer).resize({ height: 1024 }).webp({ quality: 60 }).toBuffer();
     const Base64Img = `data:image/png;base64,${sharpBuffer.toString('base64')}`
