@@ -2,8 +2,8 @@
 const { json } = require('express');
 const Book = require('../models/book.js');
 const sharp = require('sharp');
-const fs = require('fs');
-const { resolve } = require('path');
+// const fs = require('fs');
+// const { resolve } = require('path');
 
 exports.getAllBook = (req, res, next) => {
     Book.find()
