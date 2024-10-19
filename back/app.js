@@ -36,15 +36,17 @@ app.use(express.json());
 
 // app.security
 app.use((req, res, next) => {
-  var blackList = ['$','{','&&','||']
-  var options = {
-      urlBlackList: blackList,
-      bodyBlackList: blackList
-  }
-  app.use(filter(options));
-
   helmet({crossOriginResourcePolicy:false})
+  next();
+});
 
+var blackList = ['$','{','&&','||']
+var options = {
+    urlBlackList: blackList,
+    bodyBlackList: blackList
+}
+app.use((req, res, next) => {
+  filter(options);
   next();
 });
 
