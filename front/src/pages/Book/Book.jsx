@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-
 /* eslint linebreak-style: ["error", "windows"] */
 
 import React, { useEffect, useState } from 'react';
