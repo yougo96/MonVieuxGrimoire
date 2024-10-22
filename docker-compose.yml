@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+
+  mvg-build:
+    build: ./front/build
+    ports:
+      - "8080:80"
+    volumes:
+      - "./front/build:/usr/share/nginx/html"
+    container_name: mvg-build
+
+  mvg-react:
+    build: ./front
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./front:/app"
+    container_name: mvg-react
+
+  mvg-server:
+    build: ./back
+    ports:
+      - "4000:4000"
+    volumes:
+      - "./back:/app"
+      - "/app/node_modules"
+    container_name: mvg-back
