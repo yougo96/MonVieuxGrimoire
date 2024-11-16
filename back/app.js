@@ -51,8 +51,12 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
+  const allowedOrigins = ['http://localhost:4000', 'http://localhost:81', 'https://pradierh.fr', 'https://mvg.pradierh.fr'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('origin', 'http://localhost:4000');
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();

@@ -1,6 +1,6 @@
-let API_URL = new URL(location.origin)
-API_URL.port = '4000';
-// API_URL += '/'
+let API_URL = new URL(location.origin);
+// API_URL.port = '4000';
+// API_URL += ''
 export const API_ROUTES = {
   SIGN_UP: `${API_URL}api/auth/signup`,
   SIGN_IN: `${API_URL}api/auth/login`,

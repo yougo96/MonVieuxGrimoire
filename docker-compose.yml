@@ -2,26 +2,51 @@ version: '3.8'
 services:
 
   mvg-build:
-    build: ./front/build
-    ports:
-      - "8080:80"
+    build: ./front/dist
+    # ports:
+    #   - "81:80"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mvg-build.rule=Host(`mvg.pradierh.fr`)
+      - traefik.http.routers.mvg-build.entrypoints=websecure
+      - traefik.http.routers.mvg-build.tls=true
+      - traefik.http.routers.mvg-build.tls.certresolver=myresolver
+      - traefik.http.services.mvg-build.loadbalancer.server.port=80
     volumes:
-      - "./front/build:/usr/share/nginx/html"
+      - "./front/dist:/usr/share/nginx/html"
     container_name: mvg-build
+    networks: 
+      - proxy
+
 
   mvg-react:
     build: ./front
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     volumes:
       - "./front:/app"
     container_name: mvg-react
 
+
   mvg-server:
     build: ./back
-    ports:
-      - "4000:4000"
+    # ports:
+    #   - "4000:4000"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mvg-server.rule=Host(`mvg.pradierh.fr`) && PathPrefix(`/api`)
+      - traefik.http.routers.mvg-server.entrypoints=websecure
+      - traefik.http.routers.mvg-server.tls=true
+      - traefik.http.routers.mvg-server.tls.certresolver=myresolver
+      - traefik.http.services.mvg-server.loadbalancer.server.port=4000
     volumes:
       - "./back:/app"
       - "/app/node_modules"
     container_name: mvg-back
+    networks: 
+      - proxy
+
+
+networks:
+  proxy:
+    external: true
